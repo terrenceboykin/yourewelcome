@@ -65,6 +65,34 @@ button{font:inherit;background:var(--accent);color:var(--accent-fg);border:0;bor
     <div class="grid" id="grid"></div>
   </section>
 
+  <section class="card">
+    <h2>Bump J: Instagram</h2>
+    <p class="sub">Public numbers pulled Oct 7, 2026. 114K followers, 41 posts. AI reels ran Aug 21 to Sep 15.</p>
+    <div class="kpis" style="margin:12px 0">
+      <div class="kpi"><span class="label">AI reel average</span><b>323K</b></div>
+      <div class="kpi"><span class="label">Before (26 reels)</span><b>67.5K</b></div>
+      <div class="kpi"><span class="label">Median AI / before</span><b>230K / 54K</b></div>
+      <div class="kpi"><span class="label">Excluding top reel</span><b>197K avg</b></div>
+    </div>
+    <div class="scroll"><table>
+      <tr><th>Reel</th><th>Posted</th><th style="text-align:right">Views</th><th style="text-align:right">Shares</th><th style="text-align:right">Comments</th></tr>
+      <tr><td>💀💲 (Dirty South Rydaz audio)</td><td>Aug 21</td><td class="n">701K</td><td class="n">6.1K</td><td class="n">4,814</td></tr>
+      <tr><td>EASTSIDE KNIGHTS</td><td>Sep 4</td><td class="n">247K</td><td class="n">1.3K</td><td class="n">1,350</td></tr>
+      <tr><td>HELP THE 🐻</td><td>Sep 7</td><td class="n">214K</td><td class="n">464</td><td class="n">609</td></tr>
+      <tr><td>LEFT EYE ft. Fat Money</td><td>Sep 15</td><td class="n">129K</td><td class="n">751</td><td class="n">550</td></tr>
+    </table></div>
+    <p class="note">Views fell with each post. Fix: a recurring series people return for, not one-off spectacle. Study what made the 701K reel travel (6.1K shares) and copy its structure.</p>
+    <h2 style="margin-top:16px">Comment funnel</h2>
+    <p class="note" style="margin-top:0">Every reel gets a keyword. "Comment LEFT EYE and I'll DM you the full video." Comment, then DM, then email list, then buyer. About 7,300 comments so far with no way to capture them.</p>
+    <h2 style="margin-top:16px">Insights from the real @bumpj login</h2>
+    <p class="note" style="margin-top:0">Only the account owner can see these. Enter them from Insights.</p>
+    <div class="rev" style="flex-wrap:wrap">
+      <label class="label" for="i-reach">Reach (30d)</label><input id="i-reach" type="number" min="0" inputmode="numeric" data-ins="reach">
+      <label class="label" for="i-non">Non-follower %</label><input id="i-non" type="number" min="0" max="100" inputmode="numeric" data-ins="non">
+      <label class="label" for="i-visits">Profile visits</label><input id="i-visits" type="number" min="0" inputmode="numeric" data-ins="visits">
+    </div>
+  </section>
+
   <div class="cols">
     <section class="card">
       <h2>Today's blocks</h2>
@@ -156,6 +184,8 @@ document.addEventListener('change',function(e){
   if(t.dataset.rev){S.rev[t.dataset.rev]=t.value;save();render()}
   else if(t.dataset.st){S.st[t.dataset.st]=t.value;save();render()}
   else if(t.dataset.b){S.done[t.dataset.b]=t.checked;save();render()}
+  else if(t.dataset.ins){S.ins=S.ins||{};S.ins[t.dataset.ins]=t.value;save()}
 });
-load();render();
+function fillIns(){var i=S.ins||{};['reach','non','visits'].forEach(function(k){var el=document.querySelector('[data-ins="'+k+'"]');if(el&&i[k])el.value=i[k]})}
+load();render();fillIns();
 </script>
