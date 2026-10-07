@@ -1,0 +1,159 @@
+<title>Control Room</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: top KPI strip, then business grid, then day blocks + 10-year ladder + budget */
+:root{
+  --bg:#f3f1ec; --panel:#ffffff; --fg:#1b1f1d; --muted:#667068; --line:#dcd8cf;
+  --accent:#0f6b4f; --accent-fg:#ffffff;
+  --good:#1f8a4c; --warn:#b7791f; --crit:#c0392b; --idle:#8a8f8b;
+  --display:'Fraunces',Georgia,serif; --body:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101412; --panel:#181d1a; --fg:#e8ece9; --muted:#97a39b; --line:#2a322d;
+  --accent:#3fb98a; --accent-fg:#06130d; --good:#4cc77d; --warn:#e0a94a; --crit:#ee6a5a; --idle:#7b847e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101412; --panel:#181d1a; --fg:#e8ece9; --muted:#97a39b; --line:#2a322d;
+  --accent:#3fb98a; --accent-fg:#06130d; --good:#4cc77d; --warn:#e0a94a; --crit:#ee6a5a; --idle:#7b847e; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:22px}
+h1{font-family:var(--display);font-size:2rem;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-size:1.25rem;margin:0 0 10px}
+.sub{color:var(--muted);margin:4px 0 0}
+.label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.kpi b{display:block;font-family:var(--mono);font-size:1.5rem;margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.biz{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.biz header{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.biz h3{margin:0;font-size:1.02rem}
+.pill{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.s-win{color:var(--good)}.s-build{color:var(--warn)}.s-idle{color:var(--idle)}
+.next{color:var(--muted);font-size:.9rem}
+.next b{color:var(--fg);font-weight:600}
+.rev{display:flex;align-items:center;gap:8px;margin-top:auto}
+.rev input{width:90px;font:inherit;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:4px 6px}
+select{font:inherit;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:3px 4px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;min-width:0}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+li label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+li input{margin-top:3px;accent-color:var(--accent)}
+.time{font-family:var(--mono);color:var(--muted);min-width:96px;display:inline-block;font-size:.85rem}
+.done{text-decoration:line-through;color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+td,th{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+.scroll{overflow-x:auto}
+.note{color:var(--muted);font-size:.85rem;margin:10px 0 0}
+button{font:inherit;background:var(--accent);color:var(--accent-fg);border:0;border-radius:4px;padding:6px 12px;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+<div class="wrap">
+  <div>
+    <div class="label">Boykin Holdings · working name</div>
+    <h1>Control Room</h1>
+    <p class="sub">Every business in one view. Set each status, enter monthly revenue, check off today's blocks. Entries save in this browser.</p>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2>Businesses</h2>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <div class="cols">
+    <section class="card">
+      <h2>Today's blocks</h2>
+      <ul id="blocks"></ul>
+      <p class="note">Blocks reset each day. Money block comes first because that is when your energy is highest.</p>
+    </section>
+
+    <section class="card">
+      <h2>First $3,000</h2>
+      <div class="scroll"><table>
+        <tr><th>Use</th><th>Why</th><th style="text-align:right">$</th></tr>
+        <tr><td>Business basics</td><td>LLC, EIN, business bank, domain, Stripe</td><td class="n">400</td></tr>
+        <tr><td>Agency tools</td><td>Scheduler, site hosting, invoicing for client work</td><td class="n">300</td></tr>
+        <tr><td>Product samples</td><td>Hair and merch samples to shoot real content</td><td class="n">500</td></tr>
+        <tr><td>Ad tests</td><td>Small tests after an offer converts organically</td><td class="n">800</td></tr>
+        <tr><td>Reserve</td><td>Untouched until week 6</td><td class="n">1,000</td></tr>
+        <tr><td><b>Total</b></td><td></td><td class="n"><b>3,000</b></td></tr>
+      </table></div>
+      <p class="note">No ad spend until a post or page has produced at least 3 real sales or booked calls on its own.</p>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Build backwards from 10 years</h2>
+    <div class="scroll"><table>
+      <tr><th>Year</th><th>Target</th><th>What it takes</th></tr>
+      <tr><td class="mono">2036</td><td>Assets pay the bills: land, rentals, catalogs, brands that sell without you</td><td>Holding company owns the assets. Operating companies sit under it.</td></tr>
+      <tr><td class="mono">2031</td><td>Own a content and creator brand network with licensing deals</td><td>3+ brands with an audience of their own. Catalog and IP in the holding company.</td></tr>
+      <tr><td class="mono">2028</td><td>$30k+/month recurring from agency retainers and product brands</td><td>Productized packages, a small team, systems documented.</td></tr>
+      <tr><td class="mono">2027</td><td>First land or income property bought with cash flow, not savings</td><td>Six months of expenses banked first.</td></tr>
+      <tr><td class="mono">Next 90 days</td><td>First $5k/month and one proven offer in each division</td><td>Everything on this page, executed in order.</td></tr>
+    </table></div>
+    <p class="note">Bet for the next decade: AI-made content gets cheap, so trust, audience and ownership of IP become the scarce assets. Own the audience, the catalog and the land. Rent everything else.</p>
+  </section>
+</div>
+
+<script>
+var BIZ = [
+  {id:'agency',  name:'Creative Agency',        div:'Services',  next:'Sell 3 social + website packages to people already asking. Offer: $750 setup + $500/mo.', st:'build'},
+  {id:'kionna',  name:'Kionna Baby',            div:'Brand',     next:'Lock brand bible, one hero product, 10 posts shot with Higgsfield. Launch page live.', st:'build'},
+  {id:'music',   name:'Son: Music',             div:'Family',    next:'Register songs with a PRO, distribute to streaming, put 3 tracks in short-form video daily.', st:'build'},
+  {id:'hair',    name:'Daughter: Hair + Clothing', div:'Family', next:'One product line, one store, artist-adjacent content. Samples first, no inventory yet.', st:'build'},
+  {id:'merch',   name:'Merch + Dropship',       div:'Products',  next:'Print-on-demand store for your merch and the kids. Zero inventory cost.', st:'idle'},
+  {id:'ebooks',  name:'E-books + Digital',      div:'Products',  next:'Turn one lived-experience topic into a $19-$49 guide. Sell it through the store above.', st:'idle'},
+  {id:'assets',  name:'Land + Assets',          div:'Wealth',    next:'Open the LLC, bank account, and a savings bucket labelled Land. Buy after 6 months of cash flow.', st:'idle'},
+  {id:'health',  name:'Health + Family',        div:'Life',      next:'Daily walk, sleep window, family dinner. Non-negotiable blocks on the day schedule.', st:'win'}
+];
+var BLOCKS = [
+  ['6:00 – 7:00','Pray, move, plan the day'],
+  ['7:00 – 10:00','MONEY: outreach, calls, deliver client work'],
+  ['10:00 – 12:00','Build: one product or brand task'],
+  ['12:00 – 1:00','Eat and family'],
+  ['1:00 – 3:00','Content: batch shoot and schedule for all brands'],
+  ['3:00 – 4:00','Check this control room, set tomorrow'],
+  ['4:00 on','Family and rest. No screens at dinner.']
+];
+var LABEL = {win:'Winning',build:'Building',idle:'Not started'};
+var KEY = 'controlroom.v1', S = {rev:{},st:{},done:{},day:''};
+function load(){try{var r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}
+  var d=new Date().toDateString(); if(S.day!==d){S.day=d;S.done={}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function money(n){return '$'+Math.round(n).toLocaleString()}
+function render(){
+  var total=0,win=0,build=0;
+  BIZ.forEach(function(b){var s=S.st[b.id]||b.st;total+=+S.rev[b.id]||0;if(s==='win')win++;if(s==='build')build++});
+  document.getElementById('kpis').innerHTML=
+    '<div class="kpi"><span class="label">Monthly revenue</span><b>'+money(total)+'</b></div>'+
+    '<div class="kpi"><span class="label">Winning</span><b>'+win+'</b></div>'+
+    '<div class="kpi"><span class="label">Building</span><b>'+build+'</b></div>'+
+    '<div class="kpi"><span class="label">Goal: 90 days</span><b>$5,000</b></div>';
+  document.getElementById('grid').innerHTML=BIZ.map(function(b){
+    var s=S.st[b.id]||b.st;
+    return '<article class="biz"><header><div><div class="label">'+b.div+'</div><h3>'+b.name+'</h3></div>'+
+      '<span class="pill s-'+s+'">'+LABEL[s]+'</span></header>'+
+      '<div class="next"><b>Next:</b> '+b.next+'</div>'+
+      '<div class="rev"><label class="label" for="r-'+b.id+'">$/mo</label>'+
+      '<input id="r-'+b.id+'" type="number" min="0" inputmode="numeric" data-rev="'+b.id+'" value="'+(S.rev[b.id]||'')+'" placeholder="0">'+
+      '<select id="s-'+b.id+'" aria-label="Status" data-st="'+b.id+'">'+
+      ['win','build','idle'].map(function(k){return '<option value="'+k+'"'+(k===s?' selected':'')+'>'+LABEL[k]+'</option>'}).join('')+
+      '</select></div></article>'}).join('');
+  document.getElementById('blocks').innerHTML=BLOCKS.map(function(x,i){
+    var d=S.done[i];
+    return '<li><label><input type="checkbox" id="b-'+i+'" data-b="'+i+'"'+(d?' checked':'')+'><span><span class="time">'+x[0]+'</span><span class="'+(d?'done':'')+'">'+x[1]+'</span></span></label></li>'}).join('');
+}
+document.addEventListener('change',function(e){
+  var t=e.target;
+  if(t.dataset.rev){S.rev[t.dataset.rev]=t.value;save();render()}
+  else if(t.dataset.st){S.st[t.dataset.st]=t.value;save();render()}
+  else if(t.dataset.b){S.done[t.dataset.b]=t.checked;save();render()}
+});
+load();render();
+</script>
